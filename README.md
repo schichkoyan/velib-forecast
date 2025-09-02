@@ -82,6 +82,9 @@ uvicorn api.api:app --reload
 # → http://127.0.0.1:8000/docs
 
 Create a JSON payload from the sample row and call the API:
+
+```bash
+
 python - <<'PY'
 import pandas as pd, json
 row = pd.read_csv('artifacts/v0_1/sample_features.csv').iloc[0].fillna(0.0).to_dict()
@@ -90,6 +93,8 @@ print("Wrote artifacts/v0_1/sample_payload.json")
 PY
 
 curl -s -X POST http://127.0.0.1:8000/predict/30 -H "Content-Type: application/json" -d @artifacts/v0_1/sample_payload.json
+
+```
 
 ---
 
