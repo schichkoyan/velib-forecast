@@ -9,6 +9,7 @@
 ## 📦 Project Structure
 
 ```bash
+
 .
 ├── src/velib_ml/            # reusable package (data, features, training, inference)
 ├── scripts/                 # CLI scripts
@@ -23,6 +24,8 @@
     ├── config.json
     ├── feat_cols_delta.json
     └── sample_features.csv
+
+```
 
 ---
 
