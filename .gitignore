@@ -1,0 +1,25 @@
+# data & runs
+data/
+mlruns/
+logs/
+
+# artifacts lourds (on garde les légers)
+artifacts/**/*.txt
+artifacts/**/*.bin
+artifacts/**/*.pkl
+!artifacts/**/metrics.csv
+!artifacts/**/config.json
+!artifacts/**/feat_cols_delta.json
+!artifacts/**/sample_features.csv
+
+# notebooks caches
+.ipynb_checkpoints/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# mac
+.DS_Store

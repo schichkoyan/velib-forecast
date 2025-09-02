@@ -1,0 +1,15 @@
+{
+  "freq_min": 5,
+  "horizons": [
+    15,
+    30,
+    60
+  ],
+  "split_train_test": 0.7,
+  "split_train_val": 0.85,
+  "gammas": {
+    "15": 1.0,
+    "30": 1.0,
+    "60": 1.0
+  }
+}
