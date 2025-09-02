@@ -1,6 +1,0 @@
-pandas
-numpy
-pyarrow
-fastparquet
-pyspark
-pytest

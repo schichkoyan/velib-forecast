@@ -3,7 +3,7 @@ data/
 mlruns/
 logs/
 
-# artifacts lourds (on garde les légers)
+# artifacts lourds (ne pas versionner les modèles)
 artifacts/**/*.txt
 artifacts/**/*.bin
 artifacts/**/*.pkl
