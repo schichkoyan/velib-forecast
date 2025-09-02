@@ -8,6 +8,7 @@
 
 ## 📦 Project Structure
 
+```bash
 .
 ├── src/velib_ml/            # reusable package (data, features, training, inference)
 ├── scripts/                 # CLI scripts
