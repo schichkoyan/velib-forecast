@@ -1,12 +1,28 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "velib-ml"
 version = "0.1.0"
-requires-python = ">=3.9"
-dependencies = ["numpy", "pandas", "scikit-learn", "lightgbm"]
+description = "Velib availability forecasting with ML and FastAPI"
+authors = [
+    { name = "Sarkis Chichkoyan"}
+]
+readme = "README.md"
+requires-python = ">=3.8"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "lightgbm",
+    "fastapi",
+    "uvicorn[standard]",
+    "requests",
+    "mlflow",
+    "jupyter",
+    # Optional extras
+    "pyarrow",
+    "pyspark"
+]

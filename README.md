@@ -1,136 +1,118 @@
-# 🚲 Vélib' Forecast — Bike Availability Prediction (15/30/60 min)
+# 🚲 Velib ML Forecasting Project
 
-**Goal.** Predict the number of available bikes at Paris Vélib’ stations for the next **15 / 30 / 60 minutes**.  
-**Stack.** Python · LightGBM (Δ-forecast) · FastAPI · MLflow · (optional) Spark for feature jobs.  
-**Data.** Real GBFS snapshots (every 5 minutes), ~3.3M rows, ~1468 stations.
+## 📌 Project Overview
+This project predicts **bike availability at Velib stations in Paris** using machine learning.  
+It integrates **real-time station data** with **weather features** and serves predictions through an **API**.
+
+The project demonstrates:
+- End-to-end **data pipeline** (collection, processing, training, serving).
+- **ML engineering best practices** (LightGBM, feature engineering, evaluation).
+- **MLOps components** (MLflow tracking, artifact versioning).
+- **Deployment** with FastAPI for real-time predictions.
 
 ---
 
-## 📦 Project Structure
-
-```bash
+## 🗂 Repository Structure
 
 .
-├── src/velib_ml/            # reusable package (data, features, training, inference)
-├── scripts/                 # CLI scripts
-│   ├── collect_velib_gbfs.py
-│   ├── prepare_from_snapshots.py
-│   ├── baseline.py
-│   └── train.py
-├── api/api.py               # FastAPI endpoint
-├── notebooks/velib_v01.ipynb
-└── artifacts/v0_1/          # light artifacts kept in Git
-    ├── metrics.csv
-    ├── config.json
-    ├── feat_cols_delta.json
-    └── sample_features.csv
-
-```
+├── api/                   # FastAPI app serving predictions
+├── artifacts/v0_2_weather # Saved models + configs + sample features
+├── data/                  # Raw & sample data (tiny CSVs only)
+├── notebooks/             # Jupyter notebooks (EDA, experiments)
+├── scripts/               # Data collection, feature building, training
+├── src/velib_ml/          # Reusable Python package (data, features, training)
+└── README.md
 
 ---
 
-## ✨ What’s inside
+## ⚙️ Pipeline
 
-- **Feature engineering:** temporal (hour/day sin/cos, weekend), lags (5–60), rolling means (15/30/60/120/180), deltas (5/15/30/60), `occ_now = bikes/capacity`.
-- **Model:** LightGBM trained on **Δ(occupancy)** with **gamma calibration** on validation; evaluated in **MAE (bikes)**.
-- **Baselines:** Naïve (last value), EWMA.
-- **Tracking:** MLflow (params, metrics, artifacts).
-- **Serving:** FastAPI endpoint `/predict/{horizon}`.
+### 1. Data Collection
+- `collect_velib_gbfs.py` → collects **live Velib GBFS snapshots**.  
+- `fetch_weather.py` → retrieves **hourly weather** from Open-Meteo API.  
 
----
+### 2. Feature Engineering
+- Time-based features: hour of day, day of week, weekend flag.  
+- Station history: lags (5–60min), rolling means, deltas.  
+- Weather: temperature, precipitation, wind, rain indicator.  
 
-## 📈 Results Comparison (Naïve vs Models)
+### 3. Training
+- `train.py` trains **LightGBM models** per horizon (15, 30, 60 minutes).  
+- Evaluation with **MAE** baseline vs model.  
+- Artifacts stored in `artifacts/v0_2_weather/`.
 
-### v0.1 — LightGBM (no weather)
-| Horizon | Naïve MAE | Model MAE |
-|---------|-----------|-----------|
-| 15 min  | 0.749     | 0.754 |
-| 30 min  | 1.156     | 1.156 |
-| 60 min  | 1.739     | 1.714 |
-
-### v0.2 — LightGBM + Weather (Open-Meteo)
-| Horizon | Naïve MAE | Model MAE |
-|---------|-----------|-----------|
-| 15 min  | 0.749     | **0.749** |
-| 30 min  | 1.156     | **1.152** |
-| 60 min  | 1.739     | **1.723** |
-
-📝 **Observation:** Adding weather features brings small but consistent improvements across horizons. The gain is clearer at 30–60 minutes, which is expected since weather has more impact on medium-term bike demand.
+### 4. Serving
+- `api/api.py` exposes a **FastAPI endpoint**:  
+  - Single or batch predictions.  
+  - JSON output with predicted bikes and deltas.  
+  - Weather automatically integrated.
 
 ---
 
 ## 🚀 Quickstart
 
-### 0) Install
-pip install -e .
-pip install -r requirements.txt   # or: pip install mlflow "fastapi[standard]" lightgbm pandas scikit-learn
-
-### 1) Collect data (GBFS snapshots → parquet files)
-python scripts/collect_velib_gbfs.py --out data/raw/velib_long
-
-### 2) Build a single timeseries CSV (5-min grid)
-python scripts/prepare_from_snapshots.py --in data/raw/velib_long --out data/raw/velib_timeseries_5min.csv
-
-### 3) Baselines (Naïve & EWMA)
-python scripts/baseline.py --data data/raw/velib_timeseries_5min.csv --out artifacts/baseline_v0
-
-### 4) Train the model (+ MLflow logging)
-mlflow ui --port 5000 &   # optional UI at http://127.0.0.1:5000
-python scripts/train.py --data data/raw/velib_timeseries_5min.csv --out artifacts/v0_1 --threads 2 --no-ema --no-sta
-
-Outputs:
-- artifacts/v0_1/metrics.csv — final MAE.
-- artifacts/v0_1/feat_cols_delta.json — required feature columns (order matters).
-- artifacts/v0_1/config.json — horizons, splits, gammas.
-- artifacts/v0_1/sample_features.csv — one valid feature row for API tests.
-- (Models are stored locally; heavy artifacts are not pushed to Git by default.)
-
-### 5) Serve predictions (FastAPI)
-uvicorn api.api:app --reload
-# → http://127.0.0.1:8000/docs
-
-Create a JSON payload from the sample row and call the API:
-
 ```bash
+# Clone repo
+git clone https://github.com/<your-username>/<repo-name>.git
+cd <repo-name>
 
-python - <<'PY'
-import pandas as pd, json
-row = pd.read_csv('artifacts/v0_1/sample_features.csv').iloc[0].fillna(0.0).to_dict()
-json.dump({"features": row}, open('artifacts/v0_1/sample_payload.json','w'))
-print("Wrote artifacts/v0_1/sample_payload.json")
-PY
+# Install dependencies
+pip install -r requirements.txt
 
-curl -s -X POST http://127.0.0.1:8000/predict/30 -H "Content-Type: application/json" -d @artifacts/v0_1/sample_payload.json
+# Run training (optional)
+python scripts/train.py --input data/raw/velib_timeseries_5min.csv --outdir artifacts/v0_2_weather
+
+# Launch API
+uvicorn api.api:app --reload
 
 ```
 
+Test the API (Swagger UI):
+
+http://127.0.0.1:8000/docs
+
+⸻
+
+📊 Results
+
+Example MAE (absolute error in predicted bikes):
+	•	Horizon 15 min → ~0.75
+	•	Horizon 30 min → ~1.15
+	•	Horizon 60 min → ~1.70
+
+⸻
+
+🌍 Relevance
+	•	Bike-sharing demand forecasting is critical for rebalancing operations (trucks moving bikes across stations).
+	•	Shows ability to handle real-time data, ML models, and deployment pipelines.
+
+⸻
+
+🔧 Tech Stack
+	•	Python (pandas, numpy, scikit-learn, lightgbm)
+	•	FastAPI for serving
+	•	MLflow for tracking experiments
+	•	PySpark (optional) for scalable feature engineering
+	•	Jupyter for exploration
+
+⸻
+
+📌 Next Steps
+	•	Add Streamlit dashboard (station map + live predictions).
+	•	Deploy API/Dashboard on Hugging Face Spaces or Render.
+	•	Experiment with Transformers (XGBoost, PyTorch).
+
+⸻
+
+👤 Author
+
+Sarkis Chichkoyan
+Data Scientist / ML Engineer
+LinkedIn • GitHub
+
 ---
 
-## 🔍 MLflow
+👉 Tu peux copier-coller ça dans ton `README.md`.  
+Ensuite on peut rajouter **captures d’écran** (Swagger UI, notebook, résultats plots) pour le rendre encore plus visuel.  
 
-- Start UI: mlflow ui --port 5000 → http://localhost:5000
-- The training script logs: params (splits, flags), metrics per horizon (`mae_*`, `gamma_*`, `best_iter_*`), and artifacts.
-
----
-
-## 🧪 Repro Tips
-
-- Time-based splits: 70/30 train/test, then 85/15 train/val inside train.
-- Evaluate in bikes (not occupancy): MAE(capacity * occ_hat, capacity * occ_true).
-- Keep feat_cols_delta.json in sync with training.
-
----
-
-## 📌 Roadmap
-
-- Weather join (rain/temp) → extra features.
-- Spark batch job (window features, Parquet/Delta).
-- PyTorch TCN multi-horizon baseline.
-- Dockerize API + simple deployment.
-- Monitoring & drift checks.
-
----
-
-## 📜 License
-
-MIT — free to use, modify, and share.
+Veux-tu que je t’ajoute aussi une **section avec des exemples de requêtes API (curl + JSON input/output)** pour que les visiteurs puissent tester direct ?
