@@ -11,14 +11,14 @@
 ```bash
 
 .
-├── src/velib_ml/            # reusable package (data, features, training, inference)
-├── scripts/                 # CLI scripts (collect, weather, train)
+├── src/velib_ml/             # reusable package (data, features, training, inference)
+├── scripts/                  # CLI scripts (collect, weather, train)
 │   ├── collect_velib_gbfs.py
 │   ├── fetch_weather.py
 │   └── train.py
-├── api/api.py               # FastAPI app serving predictions
-├── notebooks/new_velib.ipynb# main notebook (EDA + training + eval)
-└── artifacts/v0_2_weather/  # saved models, metrics & sample features
+├── api/api.py                # FastAPI app serving predictions
+├── notebooks/new_velib.ipynb # main notebook (EDA + training + eval)
+└── artifacts/v0_2_weather/   # saved models, metrics & sample features
 
 ```
 
@@ -71,7 +71,7 @@ python scripts/fetch_weather.py --start 2025-08-20 --end 2025-09-01 --out data/e
 
 python scripts/train.py --input data/raw/velib_timeseries_5min.csv --outdir artifacts/v0_2_weather
 
-```
+
 
 Artifacts produced:
 	•	lgbm_delta_h15.txt, ..._h30.txt, ..._h60.txt — trained models
@@ -84,6 +84,7 @@ Artifacts produced:
 uvicorn api.api:app --reload
 # Open http://127.0.0.1:8000/docs
 
+```
 
 ⸻
 
@@ -118,6 +119,8 @@ curl -X POST "http://127.0.0.1:8000/predict_batch?horizon=30" \
 
 Response
 
+```bash
+
 {
   "items": [
     {
@@ -143,6 +146,7 @@ Response
   ]
 }
 
+```
 
 ⸻
 
