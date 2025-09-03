@@ -12,6 +12,7 @@ from velib_ml.features import make_features, station_encodings, feature_list, ma
 from velib_ml.splits import split_train_test
 from velib_ml.training import train_delta_gamma
 from velib_ml.io_utils import save_artifacts
+from velib_ml.weather import resample_weather_to_5min, add_weather
 
 
 def naive_mae_bikes(feat: pd.DataFrame, split_q: float) -> dict[int, float]:
@@ -46,6 +47,10 @@ def main(args: argparse.Namespace) -> None:
         mlflow.log_params({"n_rows": n_rows, "n_stations": n_sta})
 
         feat = make_features(df, use_ema=args.use_ema)
+        if args.weather:
+            w_hourly = pd.read_csv(args.weather, parse_dates=["ts"])
+            w_5min   = resample_weather_to_5min(w_hourly)
+            feat     = add_weather(feat, w_5min)
 
         # Split train/test (temps)
         train, test = split_train_test(feat, SPLIT_TRAINTEST)
@@ -64,6 +69,8 @@ def main(args: argparse.Namespace) -> None:
 
         # Liste des features (même ordre que l’entraînement)
         feat_cols = feature_list(use_ema=args.use_ema, use_sta=args.use_sta)
+        if args.weather:
+            feat_cols = feat_cols + ["temperature_2m","precipitation","wind_speed_10m","is_rain"]
 
         # ===== Baseline Naïve (sur TEST) =====
         mae_naive = naive_mae_bikes(feat, SPLIT_TRAINTEST)
@@ -170,5 +177,8 @@ if __name__ == "__main__":
     ap.add_argument("--tracking-uri", type=str, default=None)  # e.g. http://127.0.0.1:5000
     ap.add_argument("--run-name", type=str, default=None)
     ap.add_argument("--register", type=str, default=None, help="Register models under this base name (one per horizon)")
+
+    # Weather options
+    ap.add_argument("--weather", type=str, default=None, help="CSV from fetch_weather.py")
 
     main(ap.parse_args())

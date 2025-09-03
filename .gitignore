@@ -1,25 +1,48 @@
-# data & runs
+# ===================================
+# Data & Experiments (large files)
+# ===================================
 data/
 mlruns/
 logs/
 
-# artifacts lourds (ne pas versionner les modèles)
+# ===================================
+# Artifacts (keep only configs + metrics + sample_features)
+# ===================================
 artifacts/**/*.txt
 artifacts/**/*.bin
 artifacts/**/*.pkl
-!artifacts/**/metrics.csv
+artifacts/**/*.json
 !artifacts/**/config.json
 !artifacts/**/feat_cols_delta.json
+!artifacts/**/metrics.csv
 !artifacts/**/sample_features.csv
 
-# notebooks caches
+# ===================================
+# Notebooks cache & tmp
+# ===================================
 .ipynb_checkpoints/
+*.ipynb.tmp
+*.ipynb.bak
 
-# python
+# ===================================
+# Python cache
+# ===================================
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
 .venv/
+venv/
+env/
 .env
 
-# mac
+# ===================================
+# OS / Editor junk
+# ===================================
 .DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/

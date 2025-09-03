@@ -39,15 +39,23 @@
 
 ---
 
-## 📈 Results (MAE, bikes)
+## 📈 Results Comparison (Naïve vs Models)
 
-| Horizon | Naïve | LightGBM Δ |
-|:------:|-----:|-----------:|
-| 15 min | 0.750 | 0.754 |
-| 30 min | 1.156 | 1.156 |
-| 60 min | 1.739 | **1.714** |
+### v0.1 — LightGBM (no weather)
+| Horizon | Naïve MAE | Model MAE |
+|---------|-----------|-----------|
+| 15 min  | 0.749     | 0.754 |
+| 30 min  | 1.156     | 1.156 |
+| 60 min  | 1.739     | 1.714 |
 
-Naïve is a strong short-horizon baseline; the model improves at +60 min.
+### v0.2 — LightGBM + Weather (Open-Meteo)
+| Horizon | Naïve MAE | Model MAE |
+|---------|-----------|-----------|
+| 15 min  | 0.749     | **0.749** |
+| 30 min  | 1.156     | **1.152** |
+| 60 min  | 1.739     | **1.723** |
+
+📝 **Observation:** Adding weather features brings small but consistent improvements across horizons. The gain is clearer at 30–60 minutes, which is expected since weather has more impact on medium-term bike demand.
 
 ---
 

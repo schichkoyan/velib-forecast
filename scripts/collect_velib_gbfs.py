@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # Collecte des données Vélib' (GBFS) en snapshots périodiques et export CSV/Parquet.
 # - Récupère station_information.json et station_status.json
 # - Merge par station_id + ajoute un horodatage UTC 'snapshot_ts'

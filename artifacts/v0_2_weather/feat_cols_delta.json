@@ -1,0 +1,1 @@
+["dow", "is_weekend", "hour_sin", "hour_cos", "hour_sin2", "hour_cos2", "occ_now", "occ_lag_5", "occ_lag_10", "occ_lag_15", "occ_lag_30", "occ_lag_60", "occ_roll_15", "occ_roll_30", "occ_roll_60", "occ_roll_120", "occ_roll_180", "occ_delta_5", "occ_delta_15", "occ_delta_30", "occ_delta_60", "capacity", "temperature_2m", "precipitation", "wind_speed_10m", "is_rain"]
